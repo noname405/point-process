@@ -30,7 +30,7 @@ def evaluate():
     print("time_error:", {time_error}, "PRECISION:", {acc}, "RECALL:", {recall}, "F1:" ,{f1})
 
 
-def evaluate_1():
+def evaluate_1(model_name):
     model.eval()
     pred_times, pred_events = [], []
     gold_times, gold_events = [], []
@@ -38,8 +38,10 @@ def evaluate_1():
         _, gold_time,_, gold_event,_,gold_abs=batch
         gold_times.append(gold_abs.numpy())
         gold_events.append(gold_event.numpy())
-        pred_time, pred_event = model.predict_2(batch)
-        #pred_time, pred_event = model.predict_3(batch)
+        if model_name == 'rmtpp':
+            pred_time, pred_event = model.predict_2(batch)
+        else:
+            pred_time, pred_event = model.predict_3(batch)
         pred_times.append(pred_time)
         pred_events.append(pred_event)
     pred_times = np.concatenate(pred_times).reshape(-1)
@@ -115,7 +117,7 @@ if __name__=="__main__":
                 print("total loss:", range_loss / config.verbose_step)
                 range_loss1 = range_loss2 = range_loss = 0
 
-                evaluate_1()
+                evaluate_1(config.model)
                 #evaluate()
 
         # if i%1==0:
