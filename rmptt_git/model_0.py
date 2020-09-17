@@ -105,23 +105,6 @@ class Net(nn.Module):
         time_logits = self.time_linear(mlp_output)
         return time_logits, event_logits,state_Vt,wt_soft_plus
 
-
-    def forward_2(self, input_time, input_events):
-        # event_embedding = self.embedding(input_events)
-        # event_embedding = self.emb_drop(event_embedding)
-        #lstm_input = torch.cat((event_embedding, input_time.unsqueeze(-1)), dim=-1)
-        lstm_input= input_time.unsqueeze(-1)
-        hidden_state, _ = self.lstm(lstm_input)
-        
-        state_Vt=self.Vt(hidden_state[:, -1, :])
-        wt_soft_plus = self.soft(self.intensity_w )
-        # hidden_state = torch.cat((hidden_state, input_time.unsqueeze(-1)), dim=-1)
-        #mlp_output = torch.tanh(self.mlp(hidden_state[:, -1, :]))
-       # mlp_output = self.mlp_drop(mlp_output)
-        #event_logits = self.event_linear(mlp_output)
-        time_logits = self.time_linear(mlp_output)
-        return time_logits,state_Vt,wt_soft_plus
-
     def dispatch(self, tensors):
         for i in range(len(tensors)):
             #tensors[i] = tensors[i].cuda().contiguous()
@@ -171,10 +154,10 @@ class Net(nn.Module):
         time_input, time_target,event_input, event_target,time_input_abs,gold_abs=batch
         #print("time_input",time_input.size(),time_target.size(),event_input.size(),event_target.size())
         
-        time_logits,state_Vt,wt_soft_plus = self.forward_2(time_input, event_input)
+        time_logits, event_logits,state_Vt,wt_soft_plus = self.forward_1(time_input, event_input)
         loss1 = self.time_criterion(time_logits.view(-1), time_target.view(-1),state_Vt,wt_soft_plus)
         #print("event_target.view(-1)",event_logits.view(-1, self.n_class),event_target.view(-1))
-        #loss2 = self.event_criterion(event_logits.view(-1, self.n_class), event_target.view(-1))
+        loss2 = self.event_criterion(event_logits.view(-1, self.n_class), event_target.view(-1))
         loss = loss1 #+ loss2
         loss.backward()
 
@@ -216,7 +199,7 @@ class Net(nn.Module):
 
 
         time_input, time_target,event_input, event_target,time_input_abs,gold_abs=batch
-        time_logits,state_Vt,wt_soft_plus = self.forward_2(time_input, event_input)
+        time_logits, event_logits,state_Vt,wt_soft_plus = self.forward_1(time_input, event_input)
         bt=self.intensity_b.detach().cpu().numpy()
         hvt=state_Vt.detach().cpu().numpy()
         wt=wt_soft_plus.detach().cpu().numpy()
@@ -236,9 +219,9 @@ class Net(nn.Module):
         all_time_preds=np.asarray(preds_i).T
        
     
-        #event_pred = np.argmax(event_logits.detach().cpu().numpy(), axis=-1)
+        event_pred = np.argmax(event_logits.detach().cpu().numpy(), axis=-1)
         time_pred = time_logits.detach().cpu().numpy()
-        return all_time_preds
+        return all_time_preds, event_pred
 
 
     def predict_3(self, batch):
@@ -252,7 +235,7 @@ class Net(nn.Module):
             return  t * np.exp(-w  - (np.exp(-w )* (t-c)))
 
         time_input, time_target,event_input, event_target,time_input_abs,gold_abs=batch
-        time_logits,state_Vt,wt_soft_plus = self.forward_2(time_input, event_input)
+        time_logits, event_logits,state_Vt,wt_soft_plus = self.forward_1(time_input, event_input)
         # bt=self.intensity_b.detach().cpu().numpy()
         # hvt=state_Vt.detach().cpu().numpy()
         wt=wt_soft_plus.detach().cpu().numpy()
@@ -277,6 +260,6 @@ class Net(nn.Module):
         all_time_preds=np.asarray(preds_i).T
        
     
-        #event_pred = np.argmax(event_logits.detach().cpu().numpy(), axis=-1)
+        event_pred = np.argmax(event_logits.detach().cpu().numpy(), axis=-1)
         time_pred = time_logits.detach().cpu().numpy()
-        return all_time_preds, np.exp(-wt)
+        return all_time_preds, event_pred, np.exp(wt)

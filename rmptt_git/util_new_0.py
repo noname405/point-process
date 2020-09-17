@@ -109,7 +109,7 @@ def read_data(seq_len):
     timeTestIn = [[(y - minTime) / (maxTime - minTime) for y in x] for x in timeTest]
     timeTestOut = [[(y - minTime) / (maxTime - minTime) for y in x] for x in timeTest]
 
-    return eventTrainIn,timeTrainIn,eventTestIn,timeTestIn
+    return eventTrainIn,timeTrainIn,eventTestIn,timeTestIn,maxTime,minTime
 
 
 

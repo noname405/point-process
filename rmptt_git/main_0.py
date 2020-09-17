@@ -40,9 +40,9 @@ def evaluate_1(model_name):
         gold_events.append(gold_event.numpy())
         lamb=0
         if model_name == 'rmtpp':
-            pred_time = model.predict_2(batch)
+            pred_time,_= model.predict_2(batch)
         else:
-            pred_time,lamb = model.predict_3(batch)
+            pred_time,_,lamb = model.predict_3(batch)
         pred_times.append(pred_time)
         #pred_events.append(pred_event)
     pred_times = np.concatenate(pred_times).reshape(-1)
@@ -62,7 +62,7 @@ if __name__=="__main__":
     parser = ArgumentParser()
     parser.add_argument("--name", type=str, default="default")
     parser.add_argument("--model", type=str, default="erpp", help="erpp, rmtpp")
-    parser.add_argument("--seq_len", type=int, default=6)
+    parser.add_argument("--seq_len", type=int, default=10)
     parser.add_argument("--emb_dim", type=int, default=10)
     parser.add_argument("--hid_dim", type=int, default=32)
     parser.add_argument("--mlp_dim", type=int, default=16)
@@ -71,10 +71,10 @@ if __name__=="__main__":
     parser.add_argument("--batch_size", type=int, default=4)
     #parser.add_argument("--event_class", type=int, default=7)
     parser.add_argument("--event_class", type=int, default=1)
-    parser.add_argument("--verbose_step", type=int, default=3)
+    parser.add_argument("--verbose_step", type=int, default=30)
     parser.add_argument("--importance_weight", action="store_true")
     parser.add_argument("--lr", type=int, default=1e-3)
-    parser.add_argument("--epochs", type=int, default=500)
+    parser.add_argument("--epochs", type=int, default=1000)
     config = parser.parse_args()
 
     # train_set = ATMDataset(config, subset='train')
@@ -87,7 +87,7 @@ if __name__=="__main__":
     # train_loader = DataLoader(train_set, batch_size=config.batch_size, shuffle=True, collate_fn=EicuDataset.to_features_1)
     # test_loader = DataLoader(test_set, batch_size=config.batch_size, shuffle=False, collate_fn=EicuDataset.to_features_1)
 
-    eventTrainIn,timeTrainIn,eventTestIn,timeTestIn=read_data(config.seq_len)
+    eventTrainIn,timeTrainIn,eventTestIn,timeTestIn,maxTime,minTime=read_data(config.seq_len)
     #print("timeTrainIn",timeTrainIn)
     train_set = EicuDataset_new(eventTrainIn,timeTrainIn,config.seq_len)
     test_set = EicuDataset_new(eventTestIn,timeTestIn,config.seq_len)
