@@ -9,12 +9,12 @@ import itertools
 from scipy.ndimage.interpolation import shift
 import sys
 sys.path.append('/Users/aishwaryaya/dir_1/eicu_data/data/tf_rmtpp/src/')
-import keys_vocab
+#import keys_vocab
 import pandas as pd
 
-from util_eicu_0 import process_data_generate_onlyevents,patientinfo
+#from util_eicu_0 import process_data_generate_onlyevents,patientinfo
 
-feature_keys,vocab_sizes=keys_vocab.get_keys_vocab()
+#feature_keys,vocab_sizes=keys_vocab.get_keys_vocab()
 
 
 def sigmoid(x):
