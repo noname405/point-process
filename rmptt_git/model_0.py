@@ -33,7 +33,8 @@ class Net(nn.Module):
                                       warmup=0.1,
                                       t_total=total_step)
         else:
-            self.optimizer = Adam(self.parameters(), lr=self.config.lr)
+            #self.optimizer = Adam(self.parameters(), lr=self.config.lr)
+            self.optimizer = torch.optim.Adam(self.parameters(), lr=self.config.lr)
 
     def set_criterion(self, weight):
         self.event_criterion = nn.CrossEntropyLoss(weight=torch.FloatTensor(weight))

@@ -99,7 +99,7 @@ if __name__=="__main__":
     #     weight = train_set.importance_weight()
     #     print("importance weight: ", weight)
     model = Net(config, lossweight=weight)
-    model.set_optimizer(total_step=len(train_loader) * config.epochs, use_bert=True)
+    model.set_optimizer(total_step=len(train_loader) * config.epochs, use_bert=False)
     #model.cuda()
 
     for epc in range(config.epochs):
